@@ -1,0 +1,9 @@
+# GET get all infractions
+curl http://localhost:8080/v1/infraction
+# POST create infraction
+curl localhost:8080/v1/infraction -X POST -v --data '{"name": "test", "transactions": [{"amount": 33.33}]}'
+# GET specific infraction
+curl localhost:8080/v1/infraction/1 -X GET
+# GET all transactions for a specific infraction
+curl localhost:8080/v1/infraction/1/transaction -d '{"amount": 35.32}'
+
