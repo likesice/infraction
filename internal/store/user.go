@@ -1,4 +1,4 @@
-package data
+package store
 
 import (
 	"database/sql"
@@ -11,12 +11,12 @@ type User struct {
 	Name string
 }
 
-type UserRepository struct {
+type UserStore struct {
 	db *sql.DB
 }
 
 // TODO: auth is still just dummy values
-func (u *UserRepository) GetUser(temp string) (*User, error) {
+func (u *UserStore) GetUser(temp string) (*User, error) {
 	user := User{}
 	query := `SELECT u.id, u.name FROM users u WHERE u.name = ?`
 	err := u.db.QueryRow(query, []interface{}{temp}...).Scan(&user.Id, &user.Name)

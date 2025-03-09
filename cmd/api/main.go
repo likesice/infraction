@@ -9,12 +9,13 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
-	"infraction.mageis.net/internal/data"
+	"infraction.mageis.net/internal/store"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -23,31 +24,36 @@ type config struct {
 	dsn string
 }
 type Application struct {
-	registry *data.Registry
+	registry *store.Store
 	logger   *slog.Logger
 	config   config
 }
 
 func main() {
-
+	dsn := os.Getenv("INFRACTION_DSN")
 	app := Application{
 		logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true})),
-		config: config{dsn: "/mnt/c/Users/Martin/AppData/Local/Temp/data.db"},
+		config: config{dsn: strings.TrimSpace(dsn)},
 	}
 	slog.SetDefault(app.logger)
 	db, err := openDB(app.config)
+	if err != nil {
+		panic(err)
+	}
 	m, err := migrate.New("file://./migrations", "sqlite3://"+app.config.dsn)
 	if err != nil {
 		panic(err)
 	}
-	err = m.Steps(0)
+	//err = m.Steps(-3)
+	err = m.Up()
+	//m.Drop()
 	if err != nil {
 		if !errors.Is(err, migrate.ErrNoChange) {
 			panic(err)
 		}
 	}
 
-	app.registry = data.NewRegistry(db)
+	app.registry = store.NewStore(db)
 	srv := http.Server{
 		Addr:         ":8080",
 		IdleTimeout:  time.Second * 10,
