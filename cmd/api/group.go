@@ -22,7 +22,7 @@ func (app *Application) createGroupHandler() http.HandlerFunc {
 			app.logger.Error("createGroupHandler: ", errors.Join(ErrGroupValidation, err))
 			return
 		}
-		u, ok := r.Context().Value(UserCtxKey).(*store.User)
+		u, ok := r.Context().Value(userContextKey).(*store.User)
 		if !ok {
 			WriteHttpError(w, http.StatusForbidden, ErrGroupNoUser)
 			app.logger.Error("createGroupHandler: ", ErrGroupNoUser)
@@ -47,7 +47,7 @@ func (app *Application) createGroupHandler() http.HandlerFunc {
 
 func (app *Application) getAllGroupHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u, ok := r.Context().Value(UserCtxKey).(*store.User)
+		u, ok := r.Context().Value(userContextKey).(*store.User)
 		if !ok {
 			WriteHttpError(w, http.StatusForbidden, ErrGroupNoUser)
 			app.logger.Error("getAllGroupHandler: ", ErrGroupNoUser)

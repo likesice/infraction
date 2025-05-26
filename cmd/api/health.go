@@ -13,6 +13,7 @@ func (app *Application) healthHandler() http.HandlerFunc {
 			"version": "1.0.0-alpha",
 		})
 		if err != nil {
+			//TODO: unify error handling/logging
 			err = fmt.Errorf("could not wrap response object: %w", err)
 			r.WithContext(context.WithValue(r.Context(), "err", err))
 		}

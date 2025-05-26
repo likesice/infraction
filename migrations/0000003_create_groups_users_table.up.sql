@@ -1,7 +1,9 @@
 CREATE TABLE groups_users (
-    user_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
+    user_id       INTEGER NOT NULL,
+    group_id      INTEGER NOT NULL,
+    permission_id INTEGER NOT NULL,
     PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (group_id) REFERENCES groups(id)
+    FOREIGN KEY (permission_id) REFERENCES permissions(id)
 )

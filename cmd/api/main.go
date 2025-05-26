@@ -63,6 +63,13 @@ func main() {
 	}
 
 	go func() {
+		pw := store.Password{}
+		pw.Set("password1234")
+		app.registry.UserStore.Insert(&store.User{
+			Name:     "martin",
+			Email:    "test@test.com",
+			Password: pw,
+		})
 		log.Panic(srv.ListenAndServe())
 	}()
 
