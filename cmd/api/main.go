@@ -64,7 +64,7 @@ func main() {
 
 	go func() {
 		pw := store.Password{}
-		pw.Set("password1234")
+		pw.Set("password")
 		app.registry.UserStore.Insert(&store.User{
 			Name:     "martin",
 			Email:    "test@test.com",
@@ -88,6 +88,7 @@ func main() {
 		app.logger.Error("error while shutting down app", err)
 		return
 	}
+
 	app.logger.Info("shut down app")
 }
 

@@ -43,7 +43,7 @@ func (app *Application) loginHandler() http.HandlerFunc {
 		if !matches {
 			//TODO: adjust err
 			WriteHttpError(w, http.StatusForbidden, ErrUserAuthentication)
-			app.logger.Error("loginHandler:", errors.Join(ErrUserAuthentication, err))
+			app.logger.Error("loginHandler:", errors.Join(ErrUserAuthentication, fmt.Errorf("password mismatch")))
 			return
 		}
 

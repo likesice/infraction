@@ -6,8 +6,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var AnonymousUser = &User{}
@@ -29,7 +30,7 @@ type UserStore struct {
 }
 type Password struct {
 	plaintext *string
-	hash      []byte
+	hash      string
 }
 
 func (u *User) IsAnonymous() bool {
@@ -42,11 +43,11 @@ func (p *Password) Set(plaintextPassword string) error {
 		return err
 	}
 	p.plaintext = &plaintextPassword
-	p.hash = hash
+	p.hash = string(hash)
 	return nil
 }
 func (p *Password) Matches(plaintextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
+	err := bcrypt.CompareHashAndPassword([]byte(p.hash), []byte(plaintextPassword))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
@@ -61,11 +62,12 @@ func (p *Password) Matches(plaintextPassword string) (bool, error) {
 func (u *UserStore) GetUser(email string) (*User, error) {
 	user := User{Password: Password{}}
 	query := `SELECT u.id, u.email, u.password_hash FROM users u WHERE u.email = ?`
-	err := u.db.QueryRow(query, []interface{}{email}...).Scan(&user.Id, &user.Name, &user.Password.hash)
+	err := u.db.QueryRow(query, []any{email}...).Scan(&user.Id, &user.Name, &user.Password.hash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("user not found: %w", err)
 		}
+        return nil, fmt.Errorf("searching for user: %w", err)
 	}
 	return &user, nil
 }
@@ -114,7 +116,7 @@ AND sessions.expiry > ?`
 }
 
 func (u *UserStore) Insert(user *User) error {
-	args := []interface{}{user.Name, user.Email, user.Password.hash, time.Now().UnixMilli(), time.Now().UnixMilli(), 0, 1}
+	args := []any{user.Name, user.Email, user.Password.hash, time.Now().UnixMilli(), time.Now().UnixMilli(), 0, 1}
 	_, err := u.db.Exec("INSERT INTO users (name, email, password_hash, created_at, updated_at, activated, version) VALUES (?, ?, ?, ?, ?, ?, ?)", args...)
 	return err
 }
